@@ -65,7 +65,7 @@
             },
 
             addPolyline1() {
-                var promise = Cesium.GeoJsonDataSource.load('/data.xt3d.cn/assets/data/nanshan/nanshan-road1.geojson');
+                var promise = Cesium.GeoJsonDataSource.load('/211.149.185.2298080/static/data/nanshan/nanshan-road1.geojson');
                 promise.then((dataSource) => {
                     this.viewer.dataSources.add(dataSource);
                     let values = dataSource.entities.values;
@@ -74,7 +74,7 @@
                         var line = values[i];
                         line.polyline.material = new xt3d.PolylineObject.PolylineSpriteMaterialProperty({
                             duration: 2000, //控制速度
-                            url: "/data.xt3d.cn/assets/images/polylinematerial/spriteline1.png" //材质路径
+                            url: "/211.149.185.2298080/static/images/polylinematerial/spriteline1.png" //材质路径
                         });
                         console.log(line.polyline.material)
                         line.polyline.width = 2;
@@ -85,7 +85,7 @@
             },
 
             addPolyline2() {
-                var promise = Cesium.GeoJsonDataSource.load('/data.xt3d.cn/assets/data/nanshan/nanshan-road2.geojson');
+                var promise = Cesium.GeoJsonDataSource.load('/211.149.185.2298080/static/data/nanshan/nanshan-road2.geojson');
                 promise.then((dataSource) => {
                     this.viewer.dataSources.add(dataSource);
                     let values = dataSource.entities.values;
@@ -94,7 +94,7 @@
                         var line = values[i];
                         line.polyline.material = new xt3d.PolylineObject.PolylineSpriteMaterialProperty({
                             duration: 2000, //控制速度
-                            url: "/data.xt3d.cn/assets/images/polylinematerial/spriteline2.png" //材质路径
+                            url: "/211.149.185.2298080/static/images/polylinematerial/spriteline2.png" //材质路径
                         });
                         line.polyline.width = 2;
                     }
@@ -104,7 +104,7 @@
             },
 
             addPolyline3() {
-                var promise = Cesium.GeoJsonDataSource.load('/data.xt3d.cn/assets/data/nanshan/nanshan-road3.geojson');
+                var promise = Cesium.GeoJsonDataSource.load('/211.149.185.2298080/static/data/nanshan/nanshan-road3.geojson');
                 promise.then((dataSource) => {
                     this.viewer.dataSources.add(dataSource);
                     let values = dataSource.entities.values;
@@ -113,7 +113,7 @@
                         var line = values[i];
                         line.polyline.material = new xt3d.PolylineObject.PolylineSpriteMaterialProperty({
                             duration: 2000, //控制速度
-                            url: "/data.xt3d.cn/assets/images/polylinematerial/spriteline3.png" //材质路径
+                            url: "/211.149.185.2298080/static/images/polylinematerial/spriteline3.png" //材质路径
                         });
                         line.polyline.width = 2;
                     }
@@ -125,7 +125,7 @@
             //加载建筑物数据
             loadBuildData() {
                 let tileset =window.tileset= this.viewer.scene.primitives.add(new Cesium.Cesium3DTileset({
-                    url: "/data.xt3d.cn/assets/data/nanshan/nanshan_buildings/tileset.json"
+                    url: "/211.149.185.2298080/static/data/nanshan/nanshan_buildings/tileset.json"
                 }));
                 tileset.readyPromise.then((tileset) => {
                     let cs = new xt3d.BuildingEffects.CustomShaderEffect(this.viewer, tileset, {
