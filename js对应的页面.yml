@@ -1,0 +1,368 @@
+1"Jp5o"//LED文本
+2"ych9"//大屏效果1(高级功能)
+3"LgAM"//首页
+4"ndMY"//火焰粒子
+5"4+mC"//喷泉粒子
+6"UjKR"//购买说明
+7"WDlN"//基础实例
+8"ahzf"//烟雾粒子
+9"f33b"//高级应用
+10"wnFF"//基础实例购买
+11"fch6"//高级应用购买
+12"Y3zW"//模型压平(高级功能)
+13"lxxm"//智慧工厂(高级功能)
+14"Sdnr"//邾城街道(高级功能)
+15"Qtq5"//北京市(高级功能)
+16"C3iq"//立体建筑物闪烁效果
+17"8MNn"//行政区标注
+18"KihH"//大屏效果2(高级功能)
+19"j4eR"//旋转刻度盘(高级功能)
+20"W7VP"//小模型
+21"b2SM"//发光边界(高级功能)
+22"g+R+"//数字乡村示范点项目模板(高级功能)
+23"U87W"//数字工厂(高级功能)
+24"LgpW"//数字社区(高级功能)
+25"ZYpZ"//数字城市2(高级功能)
+26"hDC6"//数字城市1(高级功能)
+27"eMhA"//北京主城(高级功能)
+28"VSVT"//安防布控(高级功能)
+29//代码编辑器的语法高亮配置
+30//代码编辑器的语法定义
+31"qq83"//基础实例编辑页面
+[{
+    path: "/",
+    redirect: "/home"
+}, {
+    path: "/home",
+    component: function() {
+        return Promise.all([a.e(0), a.e(3)]).then(a.bind(null, "LgAM"))
+    },
+    meta: {
+        title: "首页"
+    }
+}, {
+    path: "/basiccategorylist",
+    name: "basiccategorylist",
+    component: function() {
+        return Promise.all([a.e(0), a.e(7)]).then(a.bind(null, "WDlN"))
+    },
+    meta: {
+        title: "基础实例"
+    }
+}, {
+    path: "/advancedlist",
+    name: "advancedlist",
+    component: function() {
+        return Promise.all([a.e(0), a.e(9)]).then(a.bind(null, "f33b"))
+    },
+    meta: {
+        title: "高级应用"
+    }
+}, {
+    path: "/basicprice",
+    name: "basicprice",
+    component: function() {
+        return Promise.all([a.e(0), a.e(10)]).then(a.bind(null, "wnFF"))
+    },
+    meta: {
+        title: "基础实例购买"
+    }
+}, {
+    path: "/advancedprice",
+    name: "advancedprice",
+    component: function() {
+        return Promise.all([a.e(0), a.e(11)]).then(a.bind(null, "fch6"))
+    },
+    meta: {
+        title: "高级应用购买"
+    }
+}, {
+    path: "/buyexplan",
+    name: "buyexplan",
+    component: function() {
+        return Promise.all([a.e(0), a.e(6)]).then(a.bind(null, "UjKR"))
+    },
+    meta: {
+        title: "购买说明"
+    }
+}, {
+    path: "/BasicExampleEditor",
+    name: "BasicExampleEditor",
+    component: function() {
+        return a.e(31).then(a.bind(null, "qq83"))
+    },
+    meta: {
+        title: "基础实例编辑页面"
+    }
+},
+{
+    path: "/regionlabel",
+    name: "regionlabel",
+    component: function() {
+        return a.e(17).then(a.bind(null, "8MNn"))
+    },
+    meta: {
+        editdisable: !0,
+        title: "行政区标注",
+        img: "regionlabel.jpg",
+        path: "LabelPlotting/RegionLabel"
+    }
+}, {
+    path: "/ledtext",
+    name: "ledtext",
+    component: function() {
+        return Promise.all([a.e(0), a.e(1)]).then(a.bind(null, "Jp5o"))
+    },
+    meta: {
+        editdisable: !0,
+        title: "LED文本",
+        img: "ledtext.jpg",
+        path: "LabelPlotting/LedText"
+    }
+}, {
+    path: "/buildingtwinkle",
+    name: "/buildingtwinkle",
+    component: function() {
+        return Promise.all([a.e(0), a.e(16)]).then(a.bind(null, "C3iq"))
+    },
+    meta: {
+        title: "立体建筑物闪烁效果",
+        img: "buildingtwinkle.gif",
+        path: "VectorBuilding/BuildingTwinkle",
+        editdisable: !0
+    }
+},
+{
+    path: "/fireparticle",
+    name: "fireparticle",
+    component: function() {
+        return Promise.all([a.e(0), a.e(4)]).then(a.bind(null, "ndMY"))
+    },
+    meta: {
+        title: "火焰粒子",
+        img: "fireparticle.gif",
+        path: "ParticleSystem/FireParticle"
+    }
+}, {
+    path: "/fountainparticle",
+    name: "fountainparticle",
+    component: function() {
+        return Promise.all([a.e(0), a.e(5)]).then(a.bind(null, "4+mC"))
+    },
+    meta: {
+        title: "喷泉粒子",
+        img: "fountainparticle.gif",
+        path: "ParticleSystem/FountainParticle"
+    }
+}, {
+    path: "/smokeparticle",
+    name: "smokeparticle",
+    component: function() {
+        return Promise.all([a.e(0), a.e(8)]).then(a.bind(null, "ahzf"))
+    },
+    meta: {
+        title: "烟雾粒子",
+        img: "smokeparticle.gif",
+        path: "ParticleSystem/SmokeParticle"
+    }
+}, {
+    path: "/firepoint",
+    name: "firepoint",
+    meta: {
+        title: "火点",
+        img: "firepoint.gif",
+        path: "ParticleSystem/FirePoint"
+    }
+}, {
+    path: "/rotatingdial_a",
+    name: "rotatingdial_a",
+    sourcePrice: 1500,
+    component: function() {
+        return Promise.all([a.e(0), a.e(19)]).then(a.bind(null, "j4eR"))
+    },
+    meta: {
+        title: "旋转刻度盘",
+        isAdvanced: !0,
+        img: "rotatingdial.jpg"
+    }
+}, {
+    path: "/digitalvillage",
+    name: "digitalvillage",
+    sourcePrice: 2500,
+    component: function() {
+        return Promise.all([a.e(0), a.e(22)]).then(a.bind(null, "g+R+"))
+    },
+    meta: {
+        title: "数字乡村示范点项目模板",
+        isAdvanced: !0,
+        img: "digitalvillage.jpg"
+    }
+}, {
+    path: "/digitalcity1",
+    name: "digitalcity1",
+    sourcePrice: 2e3,
+    component: function() {
+        return Promise.all([a.e(0), a.e(26)]).then(a.bind(null, "hDC6"))
+    },
+    meta: {
+        title: "数字城市1",
+        isAdvanced: !0,
+        img: "digitalcity1.gif"
+    }
+}, {
+    path: "/digitalcity2",
+    name: "digitalcity2",
+    sourcePrice: 2800,
+    component: function() {
+        return Promise.all([a.e(0), a.e(25)]).then(a.bind(null, "ZYpZ"))
+    },
+    meta: {
+        title: "数字城市2",
+        isAdvanced: !0,
+        img: "digitalcity2.gif"
+    }
+}, {
+    path: "/digitalcommunity",
+    name: "digitalcommunity",
+    sourcePrice: 1e3,
+    component: function() {
+        return Promise.all([a.e(0), a.e(24)]).then(a.bind(null, "LgpW"))
+    },
+    meta: {
+        title: "数字社区",
+        isAdvanced: !0,
+        img: "digitalcommunity.gif"
+    }
+}, {
+    path: "/digitalfactory",
+    name: "digitalfactory",
+    sourcePrice: 1e3,
+    component: function() {
+        return Promise.all([a.e(0), a.e(23)]).then(a.bind(null, "U87W"))
+    },
+    meta: {
+        title: "数字工厂",
+        isAdvanced: !0,
+        img: "digitalfactory.gif"
+    }
+}, {
+    path: "/beijinglabel",
+    name: "beijinglabel",
+    sourcePrice: 1e3,
+    component: function() {
+        return Promise.all([a.e(0), a.e(15)]).then(a.bind(null, "Qtq5"))
+    },
+    meta: {
+        title: "北京市",
+        isAdvanced: !0,
+        img: "beijinglabel.gif"
+    }
+}, {
+    path: "/zhuchengjiedao",
+    name: "zhuchengjiedao",
+    sourcePrice: 1e3,
+    component: function() {
+        return Promise.all([a.e(0), a.e(14)]).then(a.bind(null, "Sdnr"))
+    },
+    meta: {
+        title: "邾城街道",
+        isAdvanced: !0,
+        img: "zhuchengjiedao.jpg"
+    }
+}, {
+    path: "/beijingzhucheng",
+    name: "beijingzhucheng",
+    sourcePrice: 1e3,
+    component: function() {
+        return Promise.all([a.e(0), a.e(27)]).then(a.bind(null, "eMhA"))
+    },
+    meta: {
+        title: "北京主城",
+        isAdvanced: !0,
+        img: "beijingzhucheng.jpg"
+    }
+}, {
+    path: "/highlightboundary",
+    name: "highlightboundary",
+    sourcePrice: 1e3,
+    component: function() {
+        return Promise.all([a.e(0), a.e(21)]).then(a.bind(null, "b2SM"))
+    },
+    meta: {
+        title: "发光边界",
+        isAdvanced: !0,
+        img: "highlightboundary.gif"
+    }
+}, {
+    path: "/smartfactory",
+    name: "smartfactory",
+    sourcePrice: 2e3,
+    component: function() {
+        return a.e(13).then(a.bind(null, "lxxm"))
+    },
+    meta: {
+        title: "智慧工厂",
+        isAdvanced: !0,
+        img: "smartfactory.jpg"
+    }
+}, {
+    path: "/smallmodel",
+    name: "smallmodel",
+    sourcePrice: 0,
+    component: function() {
+        return a.e(20).then(a.bind(null, "W7VP"))
+    },
+    meta: {
+        title: "小模型",
+        isAdvanced: !0,
+        img: "smallmodel.jpg"
+    }
+}, {
+    path: "/af",
+    name: "af",
+    sourcePrice: 2e3,
+    component: function() {
+        return a.e(28).then(a.bind(null, "VSVT"))
+    },
+    meta: {
+        title: "安防布控",
+        isAdvanced: !0,
+        img: "af.png"
+    }
+}, {
+    path: "/largescreen1",
+    name: "largescreen1",
+    sourcePrice: 2e3,
+    component: function() {
+        return Promise.all([a.e(0), a.e(2)]).then(a.bind(null, "ych9"))
+    },
+    meta: {
+        title: "大屏效果1",
+        isAdvanced: !0,
+        img: "largescreen1.jpg"
+    }
+}, {
+    path: "/largescreen2",
+    name: "largescreen2",
+    sourcePrice: 1e3,
+    component: function() {
+        return Promise.all([a.e(0), a.e(18)]).then(a.bind(null, "KihH"))
+    },
+    meta: {
+        title: "大屏效果2",
+        isAdvanced: !0,
+        img: "wallhighlight.png"
+    }
+}, {
+    path: "/tilesetflat",
+    name: "tilesetflat",
+    sourcePrice: 2e4,
+    component: function() {
+        return a.e(12).then(a.bind(null, "Y3zW"))
+    },
+    meta: {
+        title: "模型压平",
+        isAdvanced: !0,
+        img: "tilesetflat.png"
+    }
+}]
