@@ -2,6 +2,10 @@
 
 [基础实例|xt3d](http://211.149.185.229:8080/basiccategorylist)
 
+[高级应用|xt3d](http://211.149.185.229:8080/advancedlist)
+
+[xt3d 开发文档](http://42.192.134.169:8090/xt3dapi/index.html)
+
 ## 运行
 
 `npm i serve -g`

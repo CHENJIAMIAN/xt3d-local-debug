@@ -8975,3 +8975,4 @@ start /b download http://211.149.185.229:8081/data/country_build/chengdu_ajust_c
 start /b download http://211.149.185.229:8081/data/country_build/chengdu_ajust_clip/tileset_3_7_3.json  -o D:/Desktop/chengdu_ajust_clip
 start /b download http://211.149.185.229:8081/data/country_build/chengdu_ajust_clip/tileset_3_7_4.json  -o D:/Desktop/chengdu_ajust_clip
 start /b download http://211.149.185.229:8081/data/country_build/chengdu_ajust_clip/tileset_3_7_5.json  -o D:/Desktop/chengdu_ajust_clip
+start /b download http://211.149.185.229:8081/data/country_build/chengdu_ajust_clip/tileset.json  -o D:/Desktop/chengdu_ajust_clip
