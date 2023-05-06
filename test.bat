@@ -1,0 +1,1 @@
+start /b download  http://211.149.185.229:8080/static/data/kedu/CHN_adm3.json    -o D:\Desktop\
