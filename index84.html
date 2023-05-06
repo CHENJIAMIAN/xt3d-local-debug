@@ -7,11 +7,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>cesium|xt3d</title>
     <!-- 引入Cesium -->
-    <script src="https://unpkg.com/cesium@1.104.0/Build/Cesium/Cesium.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/cesium@1.104.0/Build/Cesium/Widgets/widgets.css">
+    <script src="https://unpkg.com/cesium@1.84.0/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/cesium@1.84.0/Build/Cesium/Widgets/widgets.css">
 
     <!--  引入xt3d -->
-    <script src="211.149.185.2298081/xt3dlib/xt3d.104.min.js"></script>
+    <script src="211.149.185.2298081/xt3dlib/xt3d.min.js"></script>
     <style>
         html,
         body,
@@ -76,9 +76,10 @@
                             duration: 2000, //控制速度
                             url: "211.149.185.2298080/static/images/polylinematerial/spriteline1.png" //材质路径
                         });
+                        console.log(line.polyline.material)
                         line.polyline.width = 2;
                     }
-                }).catch(function(error) {
+                }).otherwise(function(error) {
                     console.log(error)
                 });
             },
@@ -97,7 +98,7 @@
                         });
                         line.polyline.width = 2;
                     }
-                }).catch(function(error) {
+                }).otherwise(function(error) {
                     console.log(error)
                 });
             },
@@ -116,7 +117,7 @@
                         });
                         line.polyline.width = 2;
                     }
-                }).catch(function(error) {
+                }).otherwise(function(error) {
                     console.log(error)
                 });
             },
@@ -127,13 +128,12 @@
                     url: "211.149.185.2298080/static/data/nanshan/nanshan_buildings/tileset.json"
                 }));
                 tileset.readyPromise.then((tileset) => {
-                    // 原理：通过this.tileset.tileVisible.addEventListener(this.tileVisibleEventHandler, this);实时修改shader
                     let cs = new xt3d.BuildingEffects.CustomShaderEffect(this.viewer, tileset, {
                         color: '0.3, 0.1, 1.0, 1.0', //颜色 rgba 浮点型 
                         glowRange: true, //是否显示光环
                         glowRangeHeight: '100.0', //光环范围 浮点型
                     });
-                }).catch(function(error) {
+                }).otherwise(function(error) {
                     console.error(error);
                 });
             },
