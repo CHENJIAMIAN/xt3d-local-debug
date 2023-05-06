@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>cesium|xt3d</title>
+    <!-- 引入Cesium -->
+    <script src="https://unpkg.com/cesium@1.84.0/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/cesium@1.84.0/Build/Cesium/Widgets/widgets.css">
+
+    <!--  引入xt3d -->
+    <script src="http://211.149.185.229:8081/xt3dlib/xt3d.min.js"></script>
+    <style>
+        html,
+        body,
+        #map3d {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+        
+        .form-container {
+            position: absolute;
+            left: 10px;
+            top: 90px;
+            padding: 10px 15px;
+            border-radius: 4px;
+            border: 1px solid rgba(128, 128, 128, 0.5);
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 3px 14px rgb(128 128 128 / 50%);
+            max-width: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map3d"></div>
+    <div class="form-container">
+        <div class="tip-item">点击模型查看窗口</div>
+    </div>
+    <script>
+        let xt3dInit = {
+            init(el) {
+                this.initViewer(el);
+                this.load3dtiles();
+                this.initEvent();
+                this.setView();
+            },
+
+            //初始化viewer
+            initViewer(el) {
+                this.viewer = new Cesium.Viewer(el, {
+                    infoBox: false,
+                    selectionIndicator: false,
+                    navigation: false,
+                    animation: false,
+                    timeline: false,
+                    baseLayerPicker: false,
+                    geocoder: false,
+                    homeButton: false,
+                    sceneModePicker: false,
+                    navigationHelpButton: false,
+                    shouldAnimate: false,
+                    imageryProvider: new Cesium.ArcGisMapServerImageryProvider({
+                        url: 'http://map.geoq.cn/arcgis/rest/services/ChinaOnlineStreetPurplishBlue/MapServer'
+                    })
+                });
+                this.viewer.scene.globe.depthTestAgainstTerrain = true;
+            },
+
+            //加载3dtiles数据
+            load3dtiles() {
+                var tileset = this.viewer.scene.primitives.add(
+                    new Cesium.Cesium3DTileset({
+                        url: "http://211.149.185.229:8081/data/3dtiles/gongchang/tileset.json",
+                    })
+                );
+            },
+
+            initEvent() {
+                let handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
+                handler.setInputAction((evt) => {
+                    this.closeWindow();
+                    let pFeature = this.viewer.scene.pick(evt.position);
+                    if (!pFeature) return;
+                    let position = this.viewer.scene.pickPosition(evt.position);
+                    if (this.lastPickFature) {
+                        this.lastPickFature.color = this.lastPickColor;
+                    }
+                    if (pFeature instanceof Cesium.Cesium3DTileFeature) {
+                        this.lastPickFature = pFeature;
+                        this.lastPickColor = pFeature.color.clone();
+                        pFeature.color = Cesium.Color.YELLOW;
+                    }
+
+                    let propertyNames = pFeature.getPropertyNames(); //模型所有属性信息 
+                    let values = [];
+                    let fields = [];
+                    for (let i = 0; i < propertyNames.length; i++) {
+                        const item = propertyNames[i];
+                        fields.push(item);
+                        values.push(pFeature.getProperty(item));
+                    }
+
+                    //手动加一个字段
+                    fields.push("height");
+                    values.push(0);
+
+                    this.showWindow(position, fields, values);
+                }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+            },
+
+            //显示窗口
+            showWindow(position, fields, values) {
+                this.window = new xt3d.Map3dWindow.LeafletPopup(this.viewer, position, fields, values);
+            },
+
+            //关闭窗口
+            closeWindow() {
+                if (this.window) {
+                    this.window.close();
+                    this.window = undefined;
+                }
+            },
+
+            //默认视角
+            setView() {
+                let flyToOpts = {
+                    destination: {
+                        x: -2553295.7743396005,
+                        y: 4097838.079426479,
+                        z: 4153771.1139983106
+                    },
+                    orientation: {
+                        heading: 5.557468039405296,
+                        pitch: -0.4889874238780201,
+                        roll: 6.280684284303742
+                    },
+                    duration: 1
+                };
+                this.viewer.scene.camera.setView(flyToOpts);
+            },
+
+            destroy() {
+                this.viewer.entities.removeAll();
+                this.viewer.imageryLayers.removeAll(true);
+                this.viewer.destroy();
+            }
+        }
+
+        xt3dInit.init("map3d");
+    </script>
+</body>
+
+</html>

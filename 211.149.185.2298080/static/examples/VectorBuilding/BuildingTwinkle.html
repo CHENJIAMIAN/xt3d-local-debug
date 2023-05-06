@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>cesium|xt3d</title>
+    <!-- 引入Cesium -->
+    <script src="https://unpkg.com/cesium@1.84.0/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/cesium@1.84.0/Build/Cesium/Widgets/widgets.css">
+
+    <script src='http://211.149.185.229:8081/libs/turf.min.js'></script>
+
+    <!--  引入xt3d -->
+    <script src="http://211.149.185.229:8081/xt3dlib/xt3d.min.js"></script>
+    <style>
+        html,
+        body,
+        #map3d {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map3d"></div>
+
+    <script>
+        let xt3dInit = {
+            init(el) {
+                this.initViewer(el);
+                this.loadBuildData();
+                this.setView();
+            },
+
+            //初始化viewer
+            initViewer(el) {
+                this.viewer = new Cesium.Viewer(el, {
+                    infoBox: false,
+                    selectionIndicator: false,
+                    navigation: false,
+                    animation: true,
+                    timeline: false,
+                    baseLayerPicker: false,
+                    geocoder: false,
+                    homeButton: false,
+                    sceneModePicker: false,
+                    navigationHelpButton: false,
+                    shouldAnimate: true,
+                    imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                        url: "https://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}"
+                    })
+                });
+                this.viewer.scene.globe.depthTestAgainstTerrain = false; //默认为false  
+                this.viewer.animation.container.style.visibility = 'hidden'; // 不显示动画控件 
+
+
+                //是否开启抗锯齿
+                this.viewer.scene.fxaa = true;
+                this.viewer.scene.postProcessStages.fxaa.enabled = true;
+            },
+
+
+            setView() {
+                let flyToOpts = {
+                    destination: {
+                        x: -2482451.5737749715,
+                        y: 4823994.987679441,
+                        z: 3343684.149350038
+                    },
+                    orientation: {
+                        heading: 5.8839572005496095,
+                        pitch: -0.6525781783904963,
+                        roll: 6.281712205278232
+                    },
+                    duration: 1
+                };
+                this.viewer.scene.camera.flyTo(flyToOpts);
+            },
+
+            //加载建筑物数据
+            loadBuildData() {
+                fetch("/static/data/lou.json").then(res => {
+                    return res.json();
+                }).then(res => {
+                    let features = res.features;
+                    this.twinkleBuildings = [];
+                    features.forEach(feature => {
+                        this.addBuilding(feature);
+                    });
+                    this.startTwinkleBuildings();
+                })
+            },
+
+            //根据geojson 对象添加建筑物
+            addBuilding(feature) {
+                let height = Number(feature.properties.floor) * 4;
+                let color = height > 70 ? Cesium.Color.RED : Cesium.Color.BLUE;
+                let degreesArrayHeights = this.getDegreesArrayHeights(feature);
+                let bEntity = this.viewer.entities.add({
+                    polygon: {
+                        hierarchy: new Cesium.PolygonHierarchy(Cesium.Cartesian3.fromDegreesArrayHeights(degreesArrayHeights)),
+                        perPositionHeight: true,
+                        extrudedHeight: height,
+                        material: color.withAlpha(0.5)
+                    }
+                });
+
+                if (height > 70) {
+                    this.twinkleBuildings.push(bEntity); //需要闪烁的建筑集合
+                }
+
+                this.addLabel(feature);
+            },
+
+            //开始闪烁
+            startTwinkleBuildings() {
+                this.endTwinkleBuildings();
+                this.clearInterval = setInterval(() => {
+                    this.twinkleBuildings.map(item => {
+                        item.show = !item.show;
+                    })
+                }, 600);
+            },
+
+            //结束闪烁
+            endTwinkleBuildings() {
+                if (!this.clearInterval) return;
+                this.twinkleBuildings.map(item => {
+                    item.show = true;
+                });
+                clearInterval(this.clearInterval);
+            },
+
+            //添加标注
+            addLabel(feature) {
+                let center = turf.center(feature);
+                let height = Number(feature.properties.floor) * 4.2;
+                let color = height > 70 ? Cesium.Color.RED : Cesium.Color.BLUE;
+                let point = center.geometry.coordinates;
+                let pinBuilder = new Cesium.PinBuilder();
+                this.viewer.entities.add({
+                    position: Cesium.Cartesian3.fromDegrees(point[0], point[1], height),
+                    billboard: {
+                        image: pinBuilder.fromText(feature.properties.floor, color.withAlpha(0.8), 48).toDataURL(),
+                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                    },
+                })
+            },
+
+            //获取坐标串
+            getDegreesArrayHeights(feature) {
+                let degreesArrayHeights = [];
+                let coordinates;
+                if (feature.geometry.type == "MultiPolygon") {
+                    coordinates = feature.geometry.coordinates[0][0];
+                } else if (feature.geometry.type == "Polygon") {
+                    coordinates = feature.geometry.coordinates[0];
+                }
+                //坐标串转为需要的格式[x,y,z,x,y,z....]
+                for (let i = 0; i < coordinates.length; i++) {
+                    const element = coordinates[i];
+                    degreesArrayHeights.push(element[0]);
+                    degreesArrayHeights.push(element[1]);
+                    degreesArrayHeights.push(feature.properties.BaseHeight);
+                }
+
+                return degreesArrayHeights;
+            },
+
+            destroy() {
+                this.viewer.entities.removeAll();
+                this.viewer.imageryLayers.removeAll(true);
+                this.viewer.destroy();
+            }
+        }
+
+        xt3dInit.init("map3d");
+    </script>
+</body>
+
+</html>

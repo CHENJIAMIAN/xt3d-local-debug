@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>cesium|xt3d</title>
+    <!-- 引入Cesium -->
+    <script src="https://unpkg.com/cesium@1.84.0/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/cesium@1.84.0/Build/Cesium/Widgets/widgets.css">
+
+    <!--  引入xt3d -->
+    <script src="http://211.149.185.229:8081/xt3dlib/xt3d.min.js"></script>
+    <style>
+        html,
+        body,
+        #map3d {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map3d"></div>
+    <script>
+        let xt3dInit = {
+            init(el) {
+                this.initViewer(el);
+                this.setView();
+            },
+
+            //初始化viewer
+            initViewer(el) {
+                this.viewer = new Cesium.Viewer(el, {
+                    infoBox: false,
+                    selectionIndicator: false,
+                    navigation: false,
+                    animation: false,
+                    shouldAnimate: false,
+                    timeline: false,
+                    baseLayerPicker: false,
+                    geocoder: false,
+                    homeButton: false,
+                    sceneModePicker: false,
+                    navigationHelpButton: false,
+                    imageryProvider: new Cesium.SingleTileImageryProvider({
+                        url: "/static/images/earth/earth_3.jpg",
+                    })
+                });
+
+                let imageryProvider = new Cesium.UrlTemplateImageryProvider({
+                    url: "http://211.149.185.229:8081/data/localimg/{z}/{x}/{y}.png",
+                    tilingScheme: new Cesium.WebMercatorTilingScheme(),
+                })
+                this.viewer.imageryLayers.addImageryProvider(imageryProvider);
+            },
+
+            //设置默认视角
+            setView() {
+                this.viewer.scene.camera.flyTo({
+                    destination: {
+                        x: -2273247.8678769637,
+                        y: 5029734.587527585,
+                        z: 3238610.2053784747
+                    },
+                    orientation: {
+                        heading: 6.19442803352172,
+                        pitch: -1.305600862647052,
+                        roll: 6.28218045437843
+                    }
+                });
+            },
+
+
+            destroy() {
+                this.viewer.entities.removeAll();
+                this.viewer.imageryLayers.removeAll(true);
+                this.viewer.destroy();
+            }
+        }
+
+        xt3dInit.init("map3d");
+    </script>
+</body>
+
+</html>

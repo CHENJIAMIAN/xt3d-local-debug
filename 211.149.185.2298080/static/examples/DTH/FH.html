@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>cesium|xt3d</title>
+    <!-- 引入Cesium -->
+    <script src="https://unpkg.com/cesium@1.84.0/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/cesium@1.84.0/Build/Cesium/Widgets/widgets.css">
+
+    <script src='http://211.149.185.229:8081/libs/turf.min.js'></script>
+
+    <!-- 使用vue绑定控件 -->
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.15.5/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/element-ui@2.15.5/lib/index.js"></script>
+
+    <!--  引入xt3d -->
+    <script src="http://211.149.185.229:8081/xt3dlib/xt3d.min.js"></script>
+    <style>
+        html,
+        body,
+        #map3d {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+        
+        #infoPanel {
+            position: absolute;
+            right: 10px;
+            top: 90px;
+            border-radius: 4px;
+            border: 1px solid rgba(128, 128, 128, 0.5);
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 3px 14px rgb(128 128 128 / 50%);
+            max-width: 380px;
+        }
+        
+        .house-info-panel {
+            position: absolute;
+            right: 20px;
+            top: 100px;
+            background: rgba(26, 56, 143, 0.58);
+        }
+        
+        .info-header {
+            background: rgba(26, 56, 143, 0.88);
+            color: white;
+            padding: 5px;
+        }
+        
+        .info-body {
+            min-width: 260px;
+            color: white;
+        }
+        
+        .info-item {
+            margin: 2px 4px;
+            background: rgba(0, 0, 0, 0.137);
+            height: 40px;
+            line-height: 40px;
+        }
+        
+        .info-label {
+            display: inline-block;
+            min-width: 60px;
+            text-align: justify;
+            -moz-text-align-last: justify;
+            text-align-last: justify;
+            width: 80px;
+        }
+        
+        .form-container {
+            position: absolute;
+            left: 10px;
+            top: 90px;
+            padding: 10px 15px;
+            border-radius: 4px;
+            border: 1px solid rgba(128, 128, 128, 0.5);
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 3px 14px rgb(128 128 128 / 50%);
+            max-width: 300px;
+        }
+        
+        .tip-item {
+            margin: 2px 0px;
+            padding: 5px 1px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map3d"></div>
+
+    <div class="form-container">
+        <div class="tip-item">鼠标左键点击想要查看的某一层会加载该层对应的分户数据，加载分户数据后点击某一户室高亮显示并展示信息</div>
+    </div>
+
+    <div class="house-info-panel" id="infoPanel" v-if="feature" :feature="feature">
+        <div class="info-header">户室信息</div>
+        <div class="info-body">
+            <div>
+                <span class="info-label">小区名称：</span>
+                <span class="info-text">{{feature.properties.CommunityN}}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">楼栋名称：</span>
+                <span class="info-text">{{feature.properties.BuildName}}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">楼层号：</span>
+                <span class="info-text">{{feature.properties.FloorNumbe}}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">单元数：</span>
+                <span class="info-text">{{feature.properties.UnitCount}}</span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">户主名称：</span>
+                <span class="info-text">{{feature.properties.Householde}}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">户主电话：</span>
+                <span class="info-text">{{feature.properties.Phone}}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">底部高度</span>
+                <span class="info-text">{{feature.properties.BaseHeight}}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">楼层高度：</span>
+                <span class="info-text">{{feature.properties.FloorHeigh}}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">顶部高度：</span>
+                <span class="info-text">{{feature.properties.TopHeight}}</span>
+            </div>
+        </div>
+    </div>
+    <script>
+        let xt3dInit = {
+            init(el) {
+                this.initViewer(el);
+                this.load3dtiles();
+                this.setView();
+                this.initDTH();
+                this.HouseSelectedEvent = new Cesium.Event();
+            },
+
+            //初始化viewer
+            initViewer(el) {
+                this.viewer = new Cesium.Viewer(el, {
+                    infoBox: false,
+                    selectionIndicator: false,
+                    navigation: false,
+                    animation: false,
+                    shouldAnimate: false,
+                    timeline: false,
+                    baseLayerPicker: false,
+                    geocoder: false,
+                    homeButton: false,
+                    sceneModePicker: false,
+                    navigationHelpButton: false,
+                    imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                        url: "https://t7.tianditu.gov.cn/DataServer?T=img_w&x={x}&y={y}&l={z}&tk=1814d83db8edd8e5b799a0d2128a9685"
+                    })
+                });
+            },
+
+
+            initDTH() {
+                this.fhDTH = new xt3d.DTH.FH(this.viewer, {
+                    fcDataServerBaseUrl: "http://42.192.134.169:8090/geoserver/xt3d/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=xt3d%3Afc_offset&maxFeatures=50&outputFormat=application%2Fjson",
+                    //geoserver数据服务的地址 分户数据地址 分层数据中的楼栋编号和分户数据中的楼编号一致
+                    fhDataServerBaseUrl: "http://42.192.134.169:8090/geoserver/xt3d/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=xt3d%3Afh_offset&maxFeatures=50&outputFormat=application%2Fjson"
+                });
+                this.fhDTH.HouseSelectedEvent.addEventListener((feature) => {
+                    this.HouseSelectedEvent.raiseEvent(feature);
+                })
+
+                this.fhDTH.activate();
+            },
+
+            //加载三维模型
+            load3dtiles() {
+                let tileset = this.viewer.scene.primitives.add(
+                    new Cesium.Cesium3DTileset({
+                        url: "http://211.149.185.229:8081/data/offset_3dtiles/tileset.json",
+                    })
+                );
+
+                tileset.readyPromise
+                    .then(tileset => {
+                        xt3d.TilesetPlugin.setTilesetHeight(tileset, 58);
+                    })
+                    .otherwise(function(error) {
+                        console.log(error);
+                    });
+            },
+
+            //设置默认视角
+            setView() {
+                let flyToOpts = {
+                    destination: {
+                        x: -1573995.6129586431,
+                        y: 5327777.486713325,
+                        z: 3123087.61152451
+                    },
+                    orientation: {
+                        heading: 4.996705925641388,
+                        pitch: -0.5519860541846482,
+                        roll: 6.279943661313574
+                    }
+                };
+                this.viewer.scene.camera.setView(flyToOpts);
+            },
+
+            destroy() {
+                this.clearPrimitives();
+                this.viewer.entities.removeAll();
+                this.viewer.imageryLayers.removeAll(true);
+                this.viewer.destroy();
+            }
+        }
+
+        xt3dInit.init("map3d");
+
+        //界面控制
+        let vm = new Vue({
+            el: "#infoPanel",
+            data() {
+                return {
+                    feature: undefined //分层数据
+                }
+            },
+        })
+
+        xt3dInit.HouseSelectedEvent.addEventListener(e => {
+            vm.feature = e;
+        })
+    </script>
+</body>
+
+</html>

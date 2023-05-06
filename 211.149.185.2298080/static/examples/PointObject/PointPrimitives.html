@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>cesium|xt3d</title>
+    <!-- 引入Cesium -->
+    <script src="https://unpkg.com/cesium@1.84.0/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/cesium@1.84.0/Build/Cesium/Widgets/widgets.css">
+    <script src='http://211.149.185.229:8081/libs/turf.min.js'></script>
+
+    <!--  引入xt3d -->
+    <script src="http://211.149.185.229:8081/xt3dlib/xt3d.min.js"></script>
+    <style>
+        html,
+        body,
+        #map3d {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map3d"></div>
+    <script>
+        let xt3dInit = {
+            init(el) {
+                this.initViewer(el);
+                this.initPrimitives();
+                this.addPrimitives();
+                this.setView();
+            },
+
+            //初始化viewer
+            initViewer(el) {
+                this.viewer = new Cesium.Viewer(el, {
+                    infoBox: true,
+                    selectionIndicator: true,
+                    navigation: false,
+                    animation: false,
+                    timeline: false,
+                    baseLayerPicker: false,
+                    geocoder: false,
+                    homeButton: false,
+                    sceneModePicker: false,
+                    navigationHelpButton: false,
+                    shouldAnimate: true,
+                    imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                        url: 'https://webrd03.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}'
+                    }),
+                    terrainProvider: new Cesium.CesiumTerrainProvider({
+                        url: "http://data.marsgis.cn/terrain",
+                        requestVertexNormals: true
+                    }),
+                });
+                this.viewer.scene.globe.depthTestAgainstTerrain = true;
+
+            },
+
+            //初始化BillboardCollection
+            initPrimitives() {
+                // Create a billboard collection  
+                this.billboards = this.viewer.scene.primitives.add(new Cesium.BillboardCollection());
+            },
+
+            //添加图标点
+            addPrimitives() {
+                let points = turf.randomPoint(20000, {
+                    bbox: [73, 20, 135, 40]
+                }); //使用turf生产20000个随机坐标点
+                let features = points.features;
+                let feature, geom, coordinates, position;
+
+                for (let i = 0; i < features.length; i++) {
+                    feature = features[i];
+                    geom = feature.geometry;
+                    coordinates = geom.coordinates;
+                    position = Cesium.Cartesian3.fromDegrees(coordinates[0], coordinates[1], 0);
+                    this.addPrimitive(position);
+                }
+            },
+
+            //添加单个图标点
+            addPrimitive(position) {
+                this.billboards.add({
+                    position: position,
+                    image: '/static/images/marker/monitor.png',
+                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                });
+            },
+
+            //设置视角
+            setView() {
+                let flyToOpts = {
+                    destination: {
+                        x: -2519873.872063144,
+                        y: 5980265.43512472,
+                        z: 2728481.985781643
+                    },
+                    orientation: {
+                        heading: 0.15184662496471635,
+                        pitch: -0.9371141121917788,
+                        roll: 6.282781043024009
+                    }
+                };
+                this.viewer.scene.camera.setView(flyToOpts);
+            },
+
+            destroy() {
+                this.viewer.entities.removeAll();
+                this.viewer.imageryLayers.removeAll(true);
+                this.viewer.destroy();
+            }
+        }
+
+        xt3dInit.init("map3d");
+    </script>
+</body>
+
+</html>

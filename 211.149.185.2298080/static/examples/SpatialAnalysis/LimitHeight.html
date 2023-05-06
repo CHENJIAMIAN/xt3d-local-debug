@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>cesium|xt3d</title>
+    <!-- 引入Cesium -->
+    <script src="https://unpkg.com/cesium@1.84.0/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/cesium@1.84.0/Build/Cesium/Widgets/widgets.css">
+
+    <!-- 使用vue绑定控件 -->
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.15.5/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/element-ui@2.15.5/lib/index.js"></script>
+
+    <!--  引入xt3d -->
+    <script src="http://211.149.185.229:8081/xt3dlib/xt3d.min.js"></script>
+    <style>
+        html,
+        body,
+        #map3d {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+        
+        .form-container {
+            position: absolute;
+            left: 10px;
+            top: 90px;
+            padding: 10px 15px;
+            border-radius: 4px;
+            border: 1px solid rgba(128, 128, 128, 0.5);
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 3px 14px rgb(128 128 128 / 50%);
+            width: 380px;
+        }
+        
+        .el-form-item__label {
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map3d"></div>
+
+    <div class="form-container" id="formContainer">
+        <el-form ref="form" label-width="60px" label-position="left" size="mini">
+            <el-form-item label="高度">
+                <el-slider v-model="height" :show-tooltip="true" @input="valueChange" :min="20" :step="0.5" :max="1000"></el-slider>
+            </el-form-item>
+            <label>当前高度：{{height}}</label>
+        </el-form>
+    </div>
+
+    <script>
+        let xt3dInit = {
+            init(el) {
+                this.initViewer(el);
+                this.load3dtiles();
+                this.initLimitHeight();
+                this.setView();
+            },
+
+            //初始化viewer
+            initViewer(el) {
+                this.viewer = new Cesium.Viewer(el, {
+                    infoBox: false,
+                    selectionIndicator: false,
+                    navigation: false,
+                    animation: false,
+                    shouldAnimate: false,
+                    timeline: false,
+                    baseLayerPicker: false,
+                    geocoder: false,
+                    homeButton: false,
+                    sceneModePicker: false,
+                    navigationHelpButton: false,
+                    terrainProvider: new Cesium.CesiumTerrainProvider({
+                        url: "http://211.149.185.229:8081/data/localter",
+                        requestWaterMask: true,
+                        requestVertexNormals: true
+                    }),
+                    imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                        url: "https://a.tiles.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token=sk.eyJ1IjoibWFyc2dpcyIsImEiOiJjbDFhYXQ3a2EwaHF6M2NvdnhmdjR6ajZ2In0.-sahm9R0QuPP3pAihJHC4A"
+                    })
+                });
+                this.viewer.scene.globe.depthTestAgainstTerrain = true; //默认为false  
+            },
+
+            initLimitHeight() {
+                let degreesArray = [
+                    106.45224958602313, 29.502082431529605,
+                    106.45910133236332, 29.501976009839993,
+                    106.45890416479318, 29.509294836065408,
+                    106.45177399251149, 29.509188949670655,
+                ];
+                this.limitHeight = new xt3d.SpatialAnalysis.LimitHeight(this.viewer, degreesArray, 60);
+                //  this.limitHeight.remove();
+            },
+
+            //加载三维模型
+            load3dtiles() {
+                var tileset = this.viewer.scene.primitives.add(
+                    new Cesium.Cesium3DTileset({
+                        url: "http://211.149.185.229:8081/data/offset_3dtiles/tileset.json",
+                    })
+                );
+
+                tileset.readyPromise
+                    .then(tileset => {
+                        xt3d.TilesetPlugin.setTilesetHeight(tileset, 55);
+                    })
+                    .otherwise(function(error) {
+                        console.log(error);
+                    });
+            },
+
+            setView() {
+                let flyToOpts = {
+                    destination: {
+                        x: -1574126.763238163,
+                        y: 5327849.101239964,
+                        z: 3123686.130276244
+                    },
+                    orientation: {
+                        heading: 3.6890111683451288,
+                        pitch: -0.5345050243680456,
+                        roll: 6.2814491879937275
+                    },
+                    duration: 1
+                };
+                this.viewer.scene.camera.setView(flyToOpts);
+            },
+
+            destroy() {
+                this.viewer.entities.removeAll();
+                this.viewer.imageryLayers.removeAll(true);
+                this.viewer.destroy();
+            }
+        }
+
+        xt3dInit.init("map3d");
+
+        //界面控制
+        let vm = new Vue({
+            el: "#formContainer",
+            data() {
+                return {
+                    height: 60
+                }
+            },
+            methods: {
+
+                //改变透明值
+                valueChange() {
+                    xt3dInit.limitHeight.setHeight(this.height);
+                },
+            }
+        })
+    </script>
+</body>
+
+</html>

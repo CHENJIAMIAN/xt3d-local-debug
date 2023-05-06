@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>cesium|xt3d</title>
+    <!-- 引入Cesium -->
+    <script src="https://unpkg.com/cesium@1.84.0/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/cesium@1.84.0/Build/Cesium/Widgets/widgets.css">
+
+    <!--  引入xt3d -->
+    <script src="http://211.149.185.229:8081/xt3dlib/xt3d.min.js"></script>
+    <style>
+        html,
+        body,
+        #map3d {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map3d"></div>
+    <script>
+        let xt3dInit = {
+            init(el) {
+                this.initViewer(el);
+                this.addRegion2();
+                this.addRegion3();
+                this.addPoint3();
+                this.setView();
+            },
+
+            //初始化viewer
+            initViewer(el) {
+                this.viewer = new Cesium.Viewer(el, {
+                    infoBox: false,
+                    selectionIndicator: false,
+                    navigation: false,
+                    animation: false,
+                    timeline: false,
+                    baseLayerPicker: false,
+                    geocoder: false,
+                    homeButton: false,
+                    sceneModePicker: false,
+                    navigationHelpButton: false,
+                    shouldAnimate: true,
+                    skyAtmosphere: false,
+                    imageryProvider: new Cesium.SingleTileImageryProvider({
+                        url: "/static/images/earth/earth_3.jpg",
+                    })
+                });
+
+
+                this.viewer.imageryLayers.removeAll(true); //删除所有底图 
+                this.viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString("#0E0A3D");
+            },
+
+
+            addRegion2() {
+                fetch("/static/data/beijing/beijing_2.json")
+                    .then(res => {
+                        return res.json();
+                    })
+                    .then(res => {
+                        res.features.map(feature => {
+                            let coordinates = feature.geometry.coordinates[0];
+                            let positions = this.coordinateToPositions(coordinates, 15000);
+                            this.viewer.entities.add({
+                                polygon: {
+                                    hierarchy: positions,
+                                    perPositionHeight: true,
+                                    material: Cesium.Color.fromCssColorString("#2B5678").withAlpha(0.8)
+                                },
+                                wall: {
+                                    positions: positions,
+                                    material: new Cesium.ImageMaterialProperty({
+                                        image: "/static/images/wall/wallgradients1.png",
+                                        repeat: new Cesium.Cartesian2(0, 1),
+                                        color: Cesium.Color.fromCssColorString("#1987A8").withAlpha(0.8)
+                                    })
+                                }
+                            });
+                        })
+                    });
+            },
+
+            addRegion3() {
+                fetch("/static/data/beijing/beijing_3.json")
+                    .then(res => {
+                        return res.json();
+                    })
+                    .then(res => {
+                        res.features.map(feature => {
+                            let coordinates = feature.geometry.coordinates[0];
+                            let positions = this.coordinateToPositions(coordinates, 15000);
+                            this.viewer.entities.add({
+                                polyline: {
+                                    positions: positions,
+                                    width: 1,
+                                    material: Cesium.Color.fromCssColorString("#ccc").withAlpha(.4)
+                                }
+                            });
+
+                            var n = Cesium.Cartographic.fromCartesian(Cesium.BoundingSphere.fromPoints(positions).center),
+                                l = Cesium.Math.toDegrees(n.longitude),
+                                a = Cesium.Math.toDegrees(n.latitude);
+                            let c = Cesium.Cartesian3.fromDegrees(l, a, 15010);
+                            //  new LedText(this.viewer, c, 3000 + Math.floor(Math.random() * 100));
+
+                            this.viewer.entities.add({
+                                position: c,
+                                label: {
+                                    text: feature.properties.name,
+                                    fillColor: Cesium.Color.WHITE,
+                                    scale: 0.5,
+                                    font: 'normal 42px MicroSoft YaHei',
+                                    distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 7000000),
+                                    scaleByDistance: new Cesium.NearFarScalar(50000, 1, 500000, 0.5),
+                                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                                    style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                                    pixelOffset: new Cesium.Cartesian2(0, -15),
+                                    outlineWidth: 20,
+                                    outlineColor: Cesium.Color.BLACK,
+                                }
+                            })
+                        })
+                    });
+            },
+
+            addPoint3() {
+                fetch("/static/data/beijing/beijing_3point.json")
+                    .then(res => {
+                        return res.json();
+                    })
+                    .then(res => {
+                        res.features.map(feature => {
+                            let coordinates = feature.geometry.coordinates;
+                            let c = Cesium.Cartesian3.fromDegrees(coordinates[0], coordinates[1], 15010)
+                            new xt3d.LabelPlotting.LedText(this.viewer, c, 3000 + Math.floor(Math.random() * 100));
+                        })
+                    });
+            },
+
+            //坐标转换
+            coordinateToPositions(coordinates, height) {
+                let positions = [];
+                coordinates.map(c => {
+                    positions.push(Cesium.Cartesian3.fromDegrees(c[0], c[1], height || 0));
+                });
+                return positions;
+            },
+
+            setView() {
+                let flyToOpts = {
+                    destination: {
+                        x: -2285318.922205349,
+                        y: 4561449.436806091,
+                        z: 4046846.8682504706
+                    },
+                    orientation: {
+                        heading: 6.174723072454894,
+                        pitch: -0.71825433447645,
+                        roll: 0.0000010271026651409443
+                    },
+                    duration: 2
+                };
+                this.viewer.scene.camera.flyTo(flyToOpts);
+
+            },
+
+            destroy() {
+                this.viewer.entities.removeAll();
+                this.viewer.imageryLayers.removeAll(true);
+                this.viewer.destroy();
+            }
+        }
+
+        xt3dInit.init("map3d");
+    </script>
+</body>
+
+</html>
