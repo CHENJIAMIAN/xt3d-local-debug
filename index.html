@@ -124,8 +124,45 @@
             //加载建筑物数据
             loadBuildData() {
                 let tileset =window.tileset= this.viewer.scene.primitives.add(new Cesium.Cesium3DTileset({
-                    url: "211.149.185.2298080/static/data/nanshan/nanshan_buildings/tileset.json"
+                    url: "211.149.185.2298080/static/data/nanshan/nanshan_buildings/tileset.json",
+                    customShader: new Cesium.CustomShader({
+                                    lightingModel: Cesium.LightingModel.UNLIT,
+                                    //强制着色器渲染为透明，即使图元具有不透明材质
+                                    // translucencyMode: Cesium.CustomShaderTranslucencyMode.TRANSLUCENT,
+                                    fragmentShaderText: /* glsl */`
+                                        void fragmentMain(FragmentInput fsInput, inout czm_modelMaterial material)
+                                        {
+                                            vec4 position = czm_inverseModelView * vec4(v_positionEC,1); // 位置从眼睛坐标转换为模型坐标
+                                            float glowRange =${'100.0'}; // 光环的移动范围(高度)
+
+                                            // material.roughness = 0.0;
+                                            // material.alpha = 0.5;
+                                            // material.specular = vec3(0.0, 0.0, 1.0);//非常谈的的颜色
+                                            // material.emissive = vec3(0.0, 0.0, 1.0);
+                                            // material.diffuse = vec3(1.0, 0.5, 1.0);
+                                            // material.alpha = 1.0;
+
+                                            // material.diffuse = vec3(0.3, 0.1, 1.0); // 颜色
+                                            material.diffuse *= vec3(position.z / 50.0); // 渐变
+                                            // 动态光环
+                                            float time = fract(czm_frameNumber / 360.0);
+                                            time = abs(time - 0.5) * 2.0;
+                                            float diff = step(0.005, abs( clamp(position.z / glowRange, 0.0, 1.0) - time));
+                                            material.diffuse +=  1.0-diff;
+                                        }
+                                        `,
+                                    })
                 }));
+                tileset.style = new Cesium.Cesium3DTileStyle({//这样设置才能让颜色接近gl_FragColor = vec4(0.3, 0.1, 1.0, 1.0)即rgb(76, 26, 255)
+                    color : 'color("rgb(76, 26, 255)")'
+                });
+                // tileset.tileVisible.addEventListener(function(tile) {
+                //     const content = tile.content;
+                //     const featuresLength = content.featuresLength;
+                //     for (let i = 0; i < featuresLength; i+=2) {
+                //         content.getFeature(i).color = Cesium.Color.fromRandom();
+                //     }
+                // });
                 tileset.readyPromise.then((tileset) => {
                     // 原理：通过this.tileset.tileVisible.addEventListener(this.tileVisibleEventHandler, this);实时修改shader
                     let cs = new xt3d.BuildingEffects.CustomShaderEffect(this.viewer, tileset, {
