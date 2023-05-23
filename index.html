@@ -145,10 +145,27 @@
                                             // material.diffuse = vec3(0.3, 0.1, 1.0); // 颜色
                                             material.diffuse *= vec3(position.z / 50.0); // 渐变
                                             // 动态光环
+                                            /* 
+                                            当 czm_frameNumber 为 0 至 359 时，time 的值为 0.
+                                            当 czm_frameNumber 为 360 至 719 时，time 的值为 0.002777777777777778 (即 1/360).
+                                            当 czm_frameNumber 为 720 至 1079 时，time 的值为 0.005555555555555556 (即 2/360)。以此类推。
+                                             */
                                             float time = fract(czm_frameNumber / 360.0);
                                             time = abs(time - 0.5) * 2.0;
-                                            float diff = step(0.005, abs( clamp(position.z / glowRange, 0.0, 1.0) - time));
+                                            // 获取'position'的z坐标值
+                                            float positionZ = position.z;
+                                            // 将'positionZ'除以'glowRange'
+                                            float dividedValue = positionZ / glowRange;// vertex高度除以100
+                                            // 通过clamp()限制'vertex高度除以100'在0.0和1.0之间
+                                            float clampedValue = clamp(dividedValue, 0.0, 1.0);
+                                            // 从'clampedValue'减去'time'
+                                            float valueMinusTime = clampedValue - time;
+                                            // 根据提供的步长值(0.005)四舍五入'absValue'，并将结果存储到名为'diff'的浮点变量中
+                                            float diff = step(0.005, abs(valueMinusTime));//大于0.5，那么step()返回1.0，否则返回0.0
                                             material.diffuse +=  1.0-diff;
+                                            // 如果要自定义色带的高度,要用let [maxHeight,minHeight] = [tileset._properties.Height.maximum,tileset._properties.Height.minimum]
+                                            // 和传入uniform判断当前绘制点是否在当前帧区间内, 是的话就变色
+                                            // https://blog.csdn.net/q1025387665a/article/details/1260092231
                                         }
                                         `,
                                     })
