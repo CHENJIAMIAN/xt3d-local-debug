@@ -7,11 +7,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>cesium|xt3d</title>
     <!-- 引入Cesium -->
-    <script src="https://unpkg.com/cesium@1.84.0/Build/Cesium/Cesium.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/cesium@1.84.0/Build/Cesium/Widgets/widgets.css">
+    <script src="https://unpkg.com/cesium@1.104.0/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/cesium@1.104.0/Build/Cesium/Widgets/widgets.css">
 
     <!--  引入xt3d -->
-    <script src="/211.149.185.2298081/xt3dlib/xt3d.min.js"></script>
+    <!-- <script src="/211.149.185.2298081/xt3dlib/xt3d.104.min.js"></script> -->
     <style>
         html,
         body,
@@ -26,7 +26,27 @@
 
 <body>
     <div id="map3d"></div>
-    <script>
+    <script type="module">
+        import BreathingWallPrimitive from "./BreathingWallPrimitive.js";
+         //   const BreathingWallPrimitive = xt3d.AdvancedPlugin.BreathingWallPrimitive;
+        const fragmentShaderText = /* glsl */`
+                                void fragmentMain(FragmentInput fsInput, inout czm_modelMaterial material)
+                                {
+                                    vec4 position = czm_inverseModelView * vec4(fsInput.attributes.positionEC,1);  
+                                    float glowRange = 50.0;  
+
+                                    material.diffuse = vec3(0.2,  0.5, 1) * vec3(0.3, 0.35, 1.0);
+                                    material.alpha = 1.0;
+
+                                    material.diffuse *= vec3((position.z + 40.0) / 30.0);
+                                    material.alpha *=  0.2;
+                                    
+                                    float time = fract(czm_frameNumber / 360.0);
+                                    time = abs(time - 0.5) * 2.0;
+                                    float diff = step(0.005, abs( clamp(position.z / glowRange, 0.0, 1.0) - time));
+
+                                    material.diffuse  += material.diffuse * (1.0 - diff);
+                                 }`
         let xt3dInit = {
             init(el) {
                 this.initViewer(el);
@@ -73,7 +93,7 @@
                         116.39752185488005, 39.898061816787596, 100
                     ])
                 }); 
-                let wallPrimitive = new xt3d.AdvancedPlugin.BreathingWallPrimitive(wallGeometry, Cesium.Color.LIME);
+                let wallPrimitive = new BreathingWallPrimitive(wallGeometry, Cesium.Color.LIME);
                 this.viewer.scene.primitives.add(wallPrimitive);
             },
 
@@ -86,7 +106,7 @@
                         116.39266270283463, 39.90424615368007, 100,
                     ])
                 });
-                let wallPrimitive = new xt3d.AdvancedPlugin.BreathingWallPrimitive(wallGeometry, Cesium.Color.YELLOW);
+                let wallPrimitive = new BreathingWallPrimitive(wallGeometry, Cesium.Color.YELLOW);
                 this.viewer.scene.primitives.add(wallPrimitive);
             },
 
@@ -100,7 +120,7 @@
                         116.39743670530584, 39.91188944544552, 100,
                     ])
                 });
-                let wallPrimitive = new xt3d.AdvancedPlugin.BreathingWallPrimitive(wallGeometry, Cesium.Color.RED);
+                let wallPrimitive = new BreathingWallPrimitive(wallGeometry, Cesium.Color.RED);
                 this.viewer.scene.primitives.add(wallPrimitive);
             },
 
@@ -120,22 +140,12 @@
                 );
                 tileset.readyPromise
                     .then(tileset => {
-                        let cs = new xt3d.BuildingEffects.CustomShaderEffect(this.viewer, tileset, {
-                            shader: `varying vec3 v_positionEC;
-                                      void main(void){
-                                           vec4 position = czm_inverseModelView * vec4(v_positionEC,1);  
-                                           float glowRange = 50.0;  
-                                           gl_FragColor = vec4(0.2,  0.5, 1.0, 1.0); 
-                                           gl_FragColor *= vec4(vec3((position.z + 40.0) / 30.0), 0.2);  
-                                         
-                                           float time = fract(czm_frameNumber / 360.0);
-                                           time = abs(time - 0.5) * 2.0;
-                                           float diff = step(0.005, abs( clamp(position.z / glowRange, 0.0, 1.0) - time));
-                                           gl_FragColor.rgb += gl_FragColor.rgb * (1.0 - diff);
-                                    }`
+                        tileset.customShader =  new Cesium.CustomShader({
+                            lightingModel: Cesium.LightingModel.UNLIT,
+                            fragmentShaderText: fragmentShaderText
                         });
                     })
-                    .otherwise(function(error) {
+                    .catch(function(error) {
                         console.error(error);
                     });
             },
@@ -149,22 +159,12 @@
                 );
                 tileset.readyPromise
                     .then(tileset => {
-                        let cs = new xt3d.BuildingEffects.CustomShaderEffect(this.viewer, tileset, {
-                            shader: `varying vec3 v_positionEC;
-                                      void main(void){
-                                           vec4 position = czm_inverseModelView * vec4(v_positionEC,1);  
-                                           float glowRange = 50.0;  
-                                           gl_FragColor = vec4(0.2,  0.5, 1.0, 1.0);  
-                                           gl_FragColor *= vec4(vec3((position.z + 40.0) / 30.0), 0.2);  
-                                          
-                                           float time = fract(czm_frameNumber / 360.0);
-                                           time = abs(time - 0.5) * 2.0;
-                                           float diff = step(0.005, abs( clamp(position.z / glowRange, 0.0, 1.0) - time));
-                                           gl_FragColor.rgb += gl_FragColor.rgb * (1.0 - diff);
-                                    }`
+                        tileset.customShader =  new Cesium.CustomShader({
+                            lightingModel: Cesium.LightingModel.UNLIT,
+                            fragmentShaderText: fragmentShaderText
                         });
                     })
-                    .otherwise(function(error) {
+                    .catch(function(error) {
                         console.error(error);
                     });
             },
@@ -178,22 +178,12 @@
                 );
                 tileset.readyPromise
                     .then(tileset => {
-                        let cs = new xt3d.BuildingEffects.CustomShaderEffect(this.viewer, tileset, {
-                            shader: `varying vec3 v_positionEC;
-                                      void main(void){
-                                           vec4 position = czm_inverseModelView * vec4(v_positionEC,1);  
-                                           float glowRange = 50.0;  
-                                           gl_FragColor = vec4(0.2,  0.5, 1.0, 1.0);  
-                                           gl_FragColor *= vec4(vec3((position.z + 40.0) / 30.0), 0.2);  
-
-                                           float time = fract(czm_frameNumber / 360.0);
-                                           time = abs(time - 0.5) * 2.0;
-                                           float diff = step(0.005, abs( clamp(position.z / glowRange, 0.0, 1.0) - time));
-                                           gl_FragColor.rgb += gl_FragColor.rgb * (1.0 - diff);
-                                    }`
+                        tileset.customShader =  new Cesium.CustomShader({
+                            lightingModel: Cesium.LightingModel.UNLIT,
+                            fragmentShaderText: fragmentShaderText
                         });
                     })
-                    .otherwise(function(error) {
+                    .catch(function(error) {
                         console.error(error);
                     });
             },
