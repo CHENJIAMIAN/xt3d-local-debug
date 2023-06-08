@@ -7,12 +7,10 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>cesium|xt3d</title>
     <!-- 引入Cesium -->
-    <script src="https://unpkg.com/cesium@1.84.0/Build/Cesium/Cesium.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/cesium@1.84.0/Build/Cesium/Widgets/widgets.css">
+    <script src="https://unpkg.com/cesium@1.104.0/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/cesium@1.104.0/Build/Cesium/Widgets/widgets.css">
     <script src='http://211.149.185.229:8081/libs/turf.min.js'></script>
 
-    <!--  引入xt3d -->
-    <script src="http://211.149.185.229:8081/xt3dlib/xt3d.min.js"></script>
     <style>
         html,
         body,
@@ -89,7 +87,7 @@
             addPrimitive(position) {
                 this.billboards.add({
                     position: position,
-                    image: '/static/images/marker/monitor.png',
+                    image: '/211.149.185.2298080/static/images/marker/monitor.png',
                     verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                 });
             },
