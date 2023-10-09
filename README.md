@@ -1,5 +1,9 @@
 # xt3d-local-debug
 
+http://www.xtgis.cc/home
+
+.gif是大量动图
+
 [基础实例|xt3d](http://211.149.185.229:8080/basiccategorylist)
 
 [高级应用|xt3d](http://211.149.185.229:8080/advancedlist)
